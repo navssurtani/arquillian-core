@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.jboss.arquillian.core.api.Instance;
@@ -95,9 +96,14 @@ public class ResourceInjectionEnricher implements TestEnricher
                   Object resource = resolveResource(field);
                   field.set(testCase, resource);
                }
-               catch (Exception e) 
+               catch (NameNotFoundException nnfe)
                {
-                  log.fine("Could not lookup for " + field + ", other Enrichers might, move on. Exception: " + e.getMessage());
+                  log.fine("Could not lookup for " + field + ", other Enrichers might, move on. Exception: " + nnfe.getMessage());
+               }
+               catch (Exception e)
+               {
+                  log.warning(e + " caught. Throwing new RuntimeException.");
+                  throw new RuntimeException(e);
                }
             }
          }
